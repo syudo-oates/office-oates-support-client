@@ -20,6 +20,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../utils/multi_window_manager.dart';
+import 'oates_support.dart';
 
 const double _kTabBarHeight = kDesktopRemoteTabBarHeight;
 const double _kIconSize = 18;
@@ -439,6 +440,11 @@ class _DesktopTabState extends State<DesktopTab>
 
   @override
   void onWindowClose() async {
+    if (isMainWindow && oatesEnabled && oatesSession) {
+      await bind.mainOnMainWindowClose();
+      await windowManager.destroy();
+      return;
+    }
     mainWindowClose() async => await windowManager.hide();
     notMainWindowClose(WindowController windowController) async {
       if (controller.length != 0) {

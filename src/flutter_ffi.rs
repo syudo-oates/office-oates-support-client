@@ -2463,6 +2463,9 @@ pub fn main_account_auth_result() -> String {
 }
 
 pub fn main_on_main_window_close() {
+    if option_env!("OATES_MODE") == Some("session") {
+        std::process::exit(0);
+    }
     // may called more than one times
     #[cfg(windows)]
     crate::portable_service::client::drop_portable_service_shared_memory();

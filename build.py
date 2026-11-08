@@ -931,6 +931,15 @@ def build_deb_from_folder(version, binary_folder, want_drm=False):
     os.chdir("..")
 
 
+def oates_flutter_flags():
+    mode = os.environ.get('OATES_MODE', '')
+    if not mode:
+        return ''
+    if mode not in ('session', 'resident'):
+        raise ValueError('OATES_MODE must be session or resident')
+    return f' --dart-define=OATES_MODE={mode}'
+
+
 def build_flutter_dmg(version, features):
     if not skip_cargo:
         # set minimum osx build target, now is 10.14, which is the same as the flutter xcode project
@@ -945,8 +954,9 @@ def build_flutter_dmg(version, features):
     # FLUTTER_XCODE_* env vars are forwarded to xcodebuild as build settings.
     mac_arch = 'arm64' if platform.machine().lower() in ('arm64', 'aarch64') else 'x86_64'
     system2(
-        f'FLUTTER_XCODE_ARCHS={mac_arch} FLUTTER_XCODE_ONLY_ACTIVE_ARCH=YES flutter build macos --release')
-    system2('cp -rf ../target/release/service ./build/macos/Build/Products/Release/RustDesk.app/Contents/MacOS/')
+        f'FLUTTER_XCODE_ARCHS={mac_arch} FLUTTER_XCODE_ONLY_ACTIVE_ARCH=YES flutter build macos --release' + oates_flutter_flags())
+    mac_app_name = {'session': 'OatesSupport', 'resident': 'OatesResident'}.get(os.environ.get('OATES_MODE'), 'RustDesk')
+    system2(f'cp -rf ../target/release/service ./build/macos/Build/Products/Release/{mac_app_name}.app/Contents/MacOS/')
     '''
     system2(
         "create-dmg --volname \"RustDesk Installer\" --window-pos 200 120 --window-size 800 400 --icon-size 100 --app-drop-link 600 185 --icon RustDesk.app 200 190 --hide-extension RustDesk.app rustdesk.dmg ./build/macos/Build/Products/Release/RustDesk.app")
@@ -973,7 +983,7 @@ def build_flutter_windows(version, features, skip_portable_pack):
             print("cargo build failed, please check rust source code.")
             exit(-1)
     os.chdir('flutter')
-    system2('flutter build windows --release')
+    system2('flutter build windows --release' + oates_flutter_flags())
     os.chdir('..')
     shutil.copy2('target/release/deps/dylib_virtual_display.dll',
                  flutter_build_dir_2)

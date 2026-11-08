@@ -2460,6 +2460,16 @@ pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
 }
 
 pub fn load_custom_client() {
+    if let Some(mode @ ("session" | "resident")) = option_env!("OATES_MODE") {
+        let app_name = if mode == "session" { "OatesSupport" } else { "OatesResident" };
+        *config::APP_NAME.write().unwrap() = app_name.to_owned();
+        let mut hard = config::HARD_SETTINGS.write().unwrap();
+        hard.insert("conn-type".to_owned(), "incoming".to_owned());
+        if mode == "session" {
+            hard.insert("disable-installation".to_owned(), "Y".to_owned());
+        }
+        return;
+    }
     #[cfg(debug_assertions)]
     if let Ok(data) = std::fs::read_to_string("./custom.txt") {
         read_custom_client(data.trim());

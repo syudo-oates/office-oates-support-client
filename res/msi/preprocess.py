@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import os
 import sys
 import uuid
 import argparse
@@ -498,7 +499,7 @@ def init_global_vars(dist_dir, app_name, args):
 
 
 def update_license_file(app_name):
-    if app_name == "RustDesk":
+    if app_name == "RustDesk" or os.environ.get('OATES_MODE') in ('session', 'resident'):
         return
     license_file = Path(sys.argv[0]).parent.joinpath("Package/License.rtf")
     with open(license_file, "r", encoding="utf-8") as f:

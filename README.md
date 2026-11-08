@@ -1,3 +1,7 @@
+# Office Oates Support
+
+For this RustDesk-derived Windows client, see [Office Oates Support and Code signing policy](OFFICE-OATES.md).
+
 <p align="center">
   <img src="res/logo-header.svg" alt="RustDesk - Your remote desktop"><br>
   <a href="#raw-steps-to-build">Build</a> •
